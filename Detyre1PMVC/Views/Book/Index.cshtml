@@ -1,0 +1,79 @@
+﻿<div style="width:100%;">
+    <h1 class="text-center">Librat tone</h1>
+    <br />
+    <br />
+    <div style="display:flex; width:50%; justify-content:start; align-items:center; gap:10px;">
+        <input type="text" id="searchInput" placeholder="Search Books by Title" class="form-control" style="width:30%;"/>
+    </div>
+    <br />
+    <br />
+    <table id="tabel1" class="table table-bordered">
+        <tr>
+            <th>Titulli</th>
+            <th>Autori</th>
+            <th>Date publikimi</th>
+            <th>Nr. Faqeve</th>
+            <th>Kategoria</th>
+            <th>Actions</th>
+        </tr>
+    </table>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    let uri = "/api/WebApi";
+    $(document).ready(() => {
+        $.getJSON(`${uri}?Emri=*`).done((data) => {
+            draw(data)
+        })
+        let a = null;
+        $("#searchInput").keydown((e)=>{
+            clearTimeout(a);
+            a = setTimeout(()=>{
+                $.getJSON(`${uri}?Emri=${(e.currentTarget.value == "") ?  "*" : e.currentTarget.value}`).done((data) => {
+                    draw(data)
+                })
+            }, 1000);
+        })  
+    })
+    let draw = (data)=>{
+        $("#tabel1 tr#vlere").html("");
+        $.each(data, (key, item) => {
+            $("#tabel1").append(`
+                <tr id="vlere" class="cols-5">
+                <td>${item.emri}</td>
+                <td>${item.autori}</td>
+                <td>${formatDate(item.dtPublikimi)}</td>
+                <td>${item.nrFaqe}</td>
+                <td>${item.kategoriId}</td>
+                <td data-id="${item.libriId}"><a style=" cursor:pointer; background-color:#0073e5; padding:2px; border-radius:10px; color:white; text-decoration: none;" onclick="test(this)">Edit</a> <a style=" cursor:pointer; background-color:#ec1802; padding:2px; border-radius:10px; color:white; text-decoration: none;" onclick="test(this)">Delete</a></td>
+                </tr>`);
+        })
+    }
+
+    function test(e){
+        let a = e.parentElement.getAttribute("data-id");
+        if(e.textContent ==="Edit"){
+            window.location.href = window.location.href+"/Edit/"+a
+        }else{
+            let ajaxCall =  $.ajax({
+                url: `/api/WebApi/${a}`,
+                type: 'DELETE'
+            });
+            $(`[data-id="${a}"]`).parent().remove()
+        }
+    }
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+</script>

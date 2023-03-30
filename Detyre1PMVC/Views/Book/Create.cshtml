@@ -1,0 +1,34 @@
+﻿@model Libri;
+
+<div style="width:100%; justify-content:center; align-items:center;">
+    <form asp-action="Create" asp-controller="Book" method="post" style="gap:1rem; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%;">
+        <div style="display:flex; justify-content:center; align-items:center; gap:1rem; width:50%;">
+            <label asp-for="Emri" ></label>
+            <input asp-for="Emri" class="form-control w-100"/>
+            <span asp-validation-for="Emri"></span>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:1rem; width:50%;">
+            <label asp-for="Autori"></label>
+            <input asp-for="Autori"  class="form-control w-100"/>
+            <span asp-validation-for="Autori"></span>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:1rem; width:50%;">
+            <label asp-for="DtPublikimi"></label>
+            <input asp-for="DtPublikimi"  class="form-control w-100"/>
+            <span asp-validation-for="DtPublikimi"></span>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:1rem; width:50%;">
+            <label asp-for="NrFaqe"></label>
+            <input asp-for="NrFaqe"  class="form-control w-100"/>
+            <span asp-validation-for="NrFaqe"></span>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:1rem; width:50%;">
+            <label asp-for="KategoriId"></label>
+            <input asp-for="KategoriId" class="form-control w-100" />
+            <span asp-validation-for="KategoriId"></span>
+        </div>
+        <input type="submit" value="Add" class="btn btn-primary"/>
+
+    </form>
+
+</div>

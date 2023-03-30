@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@if(SignInManager.IsSignedIn(User))
+{
+    <div class="container" style="width:100%; height:80vh; justify-content:center; align-items:center; display:flex; flex-direction: column; gap: 2.5rem;">
+        <h1>Book Store</h1>
+
+        <div style="display:flex; justify-content:center; align-items:center; gap:3rem;">
+            <a asp-controller="Book" asp-action="Index" class="btn btn-primary">Go to book list</a>
+            <a asp-controller="Book" asp-action="Create" class="btn btn-secondary">Add books</a>
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="container" style="width:100%; height:80vh; justify-content:center; align-items:center; display:flex; flex-direction: column; gap: 2.5rem;">
+        <h1>Book Store</h1>
+
+        <div style="display:flex; justify-content:center; align-items:center; gap:3rem;">
+            <a asp-controller="Book" asp-action="Index" class="btn btn-primary">Go to book list</a>
+            <a asp-controller="Book" asp-action="Create" class="btn btn-secondary">Buy a specific book</a>
+        </div>
+
+    </div>
+    
+}
+
+
+<script>console.log()</script>
