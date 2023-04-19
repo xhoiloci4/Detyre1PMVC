@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Detyre1PMVC.Controllers
 {
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/[Controller]/[Action]")]
     public class WebApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -52,5 +52,67 @@ namespace Detyre1PMVC.Controllers
             _context.SaveChanges();
             return NoContent();
         }
+        public async Task<IActionResult> GetUsers()
+        {
+            var nrUsers = await _context.Users.CountAsync();
+            return Ok(nrUsers);
+        }
+
+        public IActionResult GetSalesInMonth()
+        {
+            var totalSum = (from od in _context.OrderDetails
+                            join o in _context.Orders on od.OrderId equals o.OrderId
+                            where o.OrderDate.Month == DateTime.Now.Month && o.OrderDate.Year == DateTime.Now.Year
+                            select od.Quantity * od.UnitPrice).Sum();
+            return Ok(totalSum);
+        }
+
+        public async Task<IActionResult> GetOrders()
+        {
+            var Orders = await _context.Orders.CountAsync();
+            return Ok(Orders);
+        }
+        public async Task<IActionResult> Books()
+        {
+            var ResBooks = await _context.Librat.ToListAsync();
+            return Ok(ResBooks);
+
+        }
+
+        public IActionResult TotalOrders()
+        {
+            
+            var currentMonth = (from od in _context.OrderDetails
+                                join o in _context.Orders on od.OrderId equals o.OrderId
+                                where o.OrderDate.Month == DateTime.Now.Month && o.OrderDate.Year == DateTime.Now.Year
+                                select od.Quantity * od.UnitPrice).Sum();
+
+            var lastMonth = (from od in _context.OrderDetails
+                             join o in _context.Orders on od.OrderId equals o.OrderId
+                             where o.OrderDate.Month == DateTime.Now.AddMonths(-1).Month && o.OrderDate.Year == DateTime.Now.AddMonths(-1).Year
+                             select od.Quantity * od.UnitPrice).Sum();
+            decimal percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
+            var rezult = new
+            {
+                CurrentMonth = currentMonth,
+                LastMonth = lastMonth,
+                Percentage = percentageChange
+            };
+
+            return Ok(rezult);
+        }
+
+        public IActionResult BarChart()
+        {
+            var a = _context.Tests.FromSqlRaw("select MONTH(OrderDate) as labels, count(MONTH(OrderDate)) as data\r\nfrom Orders\r\nGroup by MONTH(OrderDate)").ToList();
+            return Ok(a);
+        }
+        public IActionResult LineChart(int year)
+        {
+            year = (year == 0) ? DateTime.Now.Year : year;
+            var a = _context.Tests.FromSqlRaw($"select MONTH(OrderDate) as labels, count(MONTH(OrderDate)) as data\r\nfrom Orders\r\nwhere YEAR(OrderDate) = {year}\r\nGroup by MONTH(OrderDate)").ToList();
+            return Ok(a);
+        }
+
     }
 }

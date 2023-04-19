@@ -8,6 +8,11 @@ namespace Detyre1PMVC.Data
     {
         public virtual DbSet<Kategoria> Kategorite { get; set; }
         public virtual DbSet<Libri> Librat { get; set; }
+
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+
+        public virtual DbSet<Test> Tests { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

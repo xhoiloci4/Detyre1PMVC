@@ -1,0 +1,206 @@
+﻿<div id="navigation">
+    <h3>Analysis DashBoard</h3>
+    <button class="getData btn btn-dark" style="padding-bottom:1rem;">Generate generic DashBoards</button>
+</div>
+<div id="container">
+    <div id="users" class="tile">
+        <span>Users:</span><span id="showUsers"></span>
+    </div>
+    <div id="orders" class="tile">
+        <span>Orders:</span><span id="showOrders"></span>
+    </div>
+    <div id="totalOrders" class="tile" style="flex-direction:column !important;">
+        <div style="display:flex; gap:1rem;"><span style="font-size:1rem;">This Month:</span><span style="font-size:1rem;" id="showThis"></span></div>
+        <div style="display:flex; gap:1rem;"><span style="font-size:1rem;">Last Month:</span><span style="font-size:1rem;" id="showLast"></span></div>
+        <div style="display:flex; gap:1rem;"><span style="font-size:1rem;">Percentage:</span><span style="font-size:1rem;" id="showPercentage"></span></div>
+    </div>
+    
+    <div style="border:none; border-radius:25px; box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px; background-color:aliceblue; padding:2.5rem;">
+        <table id="Table">
+            <thead>
+                <tr>
+                    <th>libriId</th>
+                    <th>emri</th>
+                    <th>autori</th>
+                    <th>dtPublikimi</th>
+                    <th>nrFaqe</th>
+                    <th>autori</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+    <div style="width:65%; border:none; border-radius:25px; box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px; background-color:aliceblue; padding:2.5rem;">
+        <canvas id="barChart"></canvas>
+    </div>
+    <div style="width:65%; border:none; border-radius:25px; box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px; background-color:aliceblue; padding:2.5rem;">
+        <canvas id="lineChart"></canvas>
+    </div>
+</div>
+@section scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(() => {
+        $(".getData").on("click", ()=>{
+
+            $.get("/api/WebApi/GetUsers", (data) => {
+                console.log(data)
+                $("#showUsers").html(data)
+            })
+
+            $.get("/api/WebApi/GetOrders", (data) => {
+                console.log(data)
+                $("#showOrders").html(data)
+            })
+                $.get("/api/WebApi/TotalOrders", (data) => {
+                    $("#showThis").html(parseFloat(data.currentMonth))
+                    $("#showLast").html(parseFloat(data.lastMonth))
+                    if (data.percentage > 0)
+                        $("#showPercentage").html(`${parseInt(data.percentage)}% ↑`)
+                    else
+                        $("#showPercentage").html(`${parseInt(data.percentage)}% ↓`)
+            })
+            $("#container").css("display", "flex");
+            $("#users").css("display", "flex")
+            $("#orders").css("display", "flex")
+            $("#totalOrders").css("display","flex");
+            $("#Table").css("display", "block")
+
+            $('#Table').DataTable({
+                ajax: {
+                    url: '/api/WebApi/Books',
+                    dataSrc: ''
+                },
+                columns: [
+                        { data: 'libriId' },
+                        { data: 'emri' },
+                        { data: 'autori' },
+                        { data: 'dtPublikimi' },
+                        { data: 'nrFaqe' },
+                        { data: 'autori' }
+                ]
+            });
+
+            $.get("/api/WebApi/BarChart", (data)=>{
+                let labels = []
+                let datasets = []
+                data.forEach((el)=>{
+                    labels.push(el.labels)
+                    datasets.push(el.data)
+                })
+                const ctx = document.getElementById('barChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Orders/Month",
+                                data: datasets,
+
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)',
+                                    'rgba(255, 205, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(201, 203, 207, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgb(255, 99, 132)',
+                                    'rgb(255, 159, 64)',
+                                    'rgb(255, 205, 86)',
+                                    'rgb(75, 192, 192)',
+                                    'rgb(54, 162, 235)',
+                                    'rgb(153, 102, 255)',
+                                    'rgb(201, 203, 207)'
+                                ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+
+            $.get("/api/WebApi/LineChart?year=2022",(data)=>{
+                    let labels = []
+                    let datasets = []
+                    data.forEach((el) => {
+                        labels.push(el.labels)
+                        datasets.push(el.data)
+                    })
+
+                    const ctxLine = document.getElementById('lineChart');
+                    new Chart(ctxLine, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: "Sales/Month in 2022",
+                                data: datasets,
+
+                                borderWidth: 1
+                            }]
+                        }
+                    });
+            })
+        })
+    })
+</script>
+}
+<style>
+    #container {
+        display: none;
+        flex-direction:column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        background-color:bisque;
+        margin:0;
+        padding-block:5%;
+        gap:2.5rem;
+    }
+    .tile{
+        width:25%;
+        cursor:pointer;
+        display:flex;
+        justify-content: center;
+        align-items:center;
+        gap:1rem;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+        color:white;
+        font-size: 2.3rem;
+        padding: 1rem 1.8rem;
+        border:none;
+        border-radius:25px;
+        transition: all 1s ease-in !important;
+    }
+    #users{
+        display:none;
+        background-color: #035efc;
+    }
+    #orders{
+        display:none;
+        background-color: #42f578;
+    }
+
+    #totalOrders{
+        display: none;
+        background-color: #42f578;
+    }
+    #Table{
+        display: none;
+    }
+</style>

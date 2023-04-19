@@ -14,6 +14,10 @@ namespace Detyre1PMVC.Controllers
         {
             return View();
         }
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
         [Authorize]
         public IActionResult Create() 
         {
