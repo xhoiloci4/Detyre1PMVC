@@ -110,7 +110,7 @@ namespace Detyre1PMVC.Controllers
         public IActionResult LineChart(int year)
         {
             year = (year == 0) ? DateTime.Now.Year : year;
-            var a = _context.Tests.FromSqlRaw($"select MONTH(OrderDate) as labels, count(MONTH(OrderDate)) as data\r\nfrom Orders\r\nwhere YEAR(OrderDate) = {year}\r\nGroup by MONTH(OrderDate)").ToList();
+            var a = _context.Tests.FromSqlRaw($"select MONTH(OrderDate) as labels, CAST(SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) as int) as data\r\nfrom Orders join OrderDetails on Orders.OrderId = OrderDetails.OrderId\r\nwhere YEAR(OrderDate) = {year}\r\nGroup by MONTH(OrderDate)").ToList();
             return Ok(a);
         }
 
